@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by nfelten.*
+*This project has been created as part of the 42 curriculum by nofelten.*
 
 # Inception
 
@@ -11,12 +11,12 @@ This project deploys a LEMP-like stack using Docker. The infrastructure includes
 * **MariaDB:** The database storing the website's data.
 
 ### Use of Docker and Sources
-The project is built entirely using Docker. Every service is built from a custom `Dockerfile` based on Alpine Linux (or Debian, depending on the implementation). No pre-built images (like `nginx:latest` or `mariadb:latest`) are used directly without being built from the OS base image. This ensures a deep understanding of how the services are installed and configured from scratch.
+The project is built entirely using Docker. Every service is built from a custom `Dockerfile` based on Debian. No pre-built images (like `nginx:latest` or `mariadb:latest`) are used directly without being built from the OS base image. This ensures a deep understanding of how the services are installed and configured from scratch.
 
 ### Main Design Choices
 * **One Container, One Service:** Each container runs a single main process to follow Docker's best practices.
 * **Network Isolation:** Services communicate over a dedicated internal Docker network. The database is never exposed to the host network.
-* **Data Persistence:** Data is stored outside the containers to ensure it survives container restarts and rebuilds.
+* **Data Persistence:** Data is stored in named volumes mapped to host directories, so it survives container restarts and rebuilds.
 
 ### Architecture Comparisons
 
@@ -28,13 +28,17 @@ The project is built entirely using Docker. Every service is built from a custom
 * **Environment Variables:** Easy to configure (e.g., via a `.env` file) and useful for general configuration. However, they can be exposed in crash dumps, logs, or by child processes.
 * **Docker Secrets:** Designed specifically for sensitive data (passwords, certificates). They are encrypted at rest and mounted into containers as in-memory files (tmpfs), making them much more secure for production environments.
 
+This project uses a `.env` file (excluded from the repository) for credentials.
+
 #### Docker Network vs Host Network
 * **Docker Network (Bridge):** Creates an isolated network for containers. Containers can resolve each other by name (e.g., `ping mariadb`) without exposing their ports to the outside world. This is highly secure.
 * **Host Network:** The container shares the host's networking namespace. It uses the host's IP address and ports directly, removing network isolation and increasing the risk of port conflicts and security breaches.
 
 #### Docker Volumes vs Bind Mounts
 * **Docker Volumes:** Managed entirely by Docker (usually stored in `/var/lib/docker/volumes`). They are independent of the host system's file structure, easier to back up, and are the recommended way to persist data.
-* **Bind Mounts:** Mount a specific path on the host machine (e.g., `/home/nfelten/data`) into the container. They rely on the host's filesystem structure and permissions. This project uses bind mounts as required by the 42 subject to store data in the user's home directory.
+* **Bind Mounts:** Mount a specific path on the host machine (e.g., `/home/nofelten/data`) into the container. They rely on the host's filesystem structure and permissions.
+
+This project uses Docker named volumes, backed by directories on the host (`/home/nofelten/data`) through the local driver options, so the data survives container restarts and rebuilds.
 
 ## Instructions
 
@@ -42,7 +46,7 @@ The project is built entirely using Docker. Every service is built from a custom
 * Docker and Docker Compose installed.
 * `make` utility installed.
 * Ensure your local domain points to your local machine. Add the following to your `/etc/hosts` file (requires sudo):
-  `127.0.0.1 nfelten.42.fr`
+  `127.0.0.1 nofelten.42.fr`
 
 ### Configuration
 1. Navigate to the `srcs` directory.
@@ -53,7 +57,7 @@ The project is built entirely using Docker. Every service is built from a custom
    SQL_PASSWORD=wp_password
    SQL_ROOT_PASSWORD=root_password
    SQL_HOST=mariadb:3306
-   DOMAIN_NAME=nfelten.42.fr
+   DOMAIN_NAME=nofelten.42.fr
    WP_ADMIN_USER=wp_admin
    WP_ADMIN_PASSWORD=admin_password
    WP_ADMIN_EMAIL=admin@example.com
@@ -67,7 +71,7 @@ The project is built entirely using Docker. Every service is built from a custom
 * **To stop the infrastructure:** Run `make down`.
 * **To completely clean the project (remove containers, images, and data):** Run `make fclean`.
 
-Once running, access the site at `https://nfelten.42.fr`.
+Once running, access the site at `https://nofelten.42.fr`.
 
 ## Resources
 * **Official Documentation:**
